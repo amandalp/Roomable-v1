@@ -1,0 +1,16 @@
+<html>
+<head>
+	<title>AVAILABLE ROOMS</title>
+</head>
+<body>
+	<H1>AVAILABLE ROOMS</H1>
+	<ul>
+		<% for (var i=0; i<rooms.length; i++) { %>
+			<li>
+				<a href="/rooms/<%= rooms[i].id %>"><%= rooms[i].title %></a>
+			</li>
+		<% } %>
+	</ul>
+	<a href="/rooms/new">Add a new room!</a>
+</body>
+</html>
