@@ -14,6 +14,7 @@ var 	express 			= require('express'),
 		FacebookStrategy	= require('passport-facebook').Strategy;
 //		fb 					= require('./fb.js');
 
+
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
 app.use(bodyParser.json());
@@ -26,6 +27,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
+
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -43,6 +45,8 @@ app.listen(3000, function() {
 	console.log('Server is running!');
 });
 
+
+// Local login, but may not need this anymore!
 var localStrategy = new LocalStrategy(
   function(username, password, done) {
     db.query('SELECT * FROM users WHERE username = $1', [username], function(err, dbRes) {
@@ -61,6 +65,7 @@ var localStrategy = new LocalStrategy(
 );
 
 passport.use(localStrategy);
+
 
 // OAuth Passport Facebook
 // finds out if you have a user and if you do, you log the user in, but if you don't you create that user, and then log them in.
@@ -83,7 +88,7 @@ passport.use(new FacebookStrategy({
 ));
 
 
-// Routy Routes: User Login Routes
+// Starting Routes
 
 app.get('/', function(req, res) {
 	res.render('index', { user: req.user });
@@ -98,11 +103,8 @@ app.delete('/', function(req, res) {
 	res.redirect('/');
 });
 
-app.get('/garbage', function(req, res){	
-	res.end('garbage');
-});
 
-// Facebook Routes
+// Facebook Auth Routes
 
 app.get('/auth/facebook',
   passport.authenticate('facebook', { display: 'touch' }));
@@ -183,28 +185,3 @@ app.delete('/rooms/:id', function(req, res) {
 		}
 	});
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
