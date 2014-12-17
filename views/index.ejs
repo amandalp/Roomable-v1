@@ -1,8 +1,10 @@
 <html>
 <head>
 	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 	<link href="css/style.css" rel="stylesheet">
-	<title>Roomable: Compatible Roommate Finder</title>	
+	<title>Roomable: Compatible Rooms AND Roommates</title>	
 </head>
 <body>
 
@@ -36,16 +38,21 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
-	      <a class="navbar-brand" href="#">ROOMABLE</a>
+	      <a class="navbar-brand" href="/">ROOMABLE</a>
 	    </div>
 
 	    <!-- Collect the nav links, forms, and other content for toggling -->
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      
 	      <ul class="nav navbar-nav navbar-right">
-	        <li><a href="/rooms">Rooms</a></li>
-	        <li><a href="#">Log In</a></li>
-	        <li><a href="/auth/facebook">Log In with Facebook</a></li>
+
+	        <% if (user) { %>
+	        	<form action="/sessions?_method=DELETE" method="POST">
+	        		<input type="submit" value="Log Out">
+	        	</form>
+	        <% } else { %>
+	        	<li><a href="/auth/facebook">Log In with Facebook</a></li>
+	        <% } %>
 	      </ul>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
@@ -54,7 +61,7 @@
 
 
 
-	<div id="carousel-home" class="carousel slide" data-ride="carousel" data-interval="5000">
+	<div id="carousel-home" class="carousel slide" data-ride="carousel" data-interval="4000">
 	  <!-- Indicators -->
 	  <ol class="carousel-indicators">
 	    <li data-target="#carousel-home" data-slide-to="0" class="active"></li>
@@ -65,25 +72,29 @@
 	  <!-- Wrapper for slides -->
 	  <div class="carousel-inner">
 	    <div class="item active">
-	      <a href="http://imgur.com/2rXnQux"><img src="http://i.imgur.com/2rXnQux.png" title="source: imgur.com" /></a>
+	      <a href="http://imgur.com/G9nBqtn"><img src="http://i.imgur.com/G9nBqtn.jpg" title="source: imgur.com" /></a>
 	      <div class="carousel-caption">
-	          <h1>WELCOME HOME</h3>
-	          <h2>Find the right room AND the right roommates.</h4>
+	          <h1>WELCOME HOME</h1>
+	          <h3>Ready to find the right room, with the right roommates.</h3>
 	      </div>
 	    </div>
 	    <div class="item">
-	      <a href="http://imgur.com/Hv9XAJF"><img src="http://i.imgur.com/Hv9XAJF.png" title="source: imgur.com" /></a>
+	      <a href="http://imgur.com/pt7pdxT"><img src="http://i.imgur.com/pt7pdxT.png" title="source: imgur.com" /></a>
 	      <div class="carousel-caption">
-	          <h1>WELCOME HOME</h3>
-	          <h2>Find the right room AND the right roommates.</h4>
+	          	<h1>The right place</h1>
 	      </div>
 	    </div>
 	    <div class="item">
-	      <a href="http://imgur.com/dnkbLRr"><img src="http://i.imgur.com/dnkbLRr.png" title="source: imgur.com" /></a>
+	      <a href="http://imgur.com/5jVgVFv"><img src="http://i.imgur.com/5jVgVFv.jpg" title="source: imgur.com" /></a>
 	      <div class="carousel-caption">
-	          <h1>WELCOME HOME</h3>
-	          <h2>Find the right room AND the right roommates.</h4>
+	          <h1>New best friends</h1>
 	      </div>
+	    </div>
+	    <div class="item">
+	      <a href="http://imgur.com/5DZTcd3"><img src="http://i.imgur.com/5DZTcd3.jpg" title="source: imgur.com" /></a>
+	      <div class="carousel-caption">
+	          <h2>GET STARTED</h2>
+	      </div>  
 	    </div>
 	  </div>
 	 
@@ -95,17 +106,6 @@
 	    <span class="glyphicon glyphicon-chevron-right"></span>
 	  </a>
 	</div> <!-- Carousel -->
-
-
-
-	
-	
-	<h3>Get started</h3>
-	<div class="btn-group" role="group" aria-label="...">
-	  <button type="button" class="btn btn-default">Get </button>
-	</div>
-	
-	<h3>Log In with Facebook</h3>
 </body>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -113,7 +113,7 @@
 <script>
   $(document).ready(function(){
     $('.carousel').carousel({
-    	interval: 5000
+    	interval: 4000
     });
   });
 </script>

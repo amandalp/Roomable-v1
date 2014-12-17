@@ -78,10 +78,30 @@ passport.use(new FacebookStrategy({
 	enableProof: false
 },
 	function(accessToken, refreshToken, profile, done) {
-		db.query("SELECT * FROM users WHERE facebookID = $1", [profile.id], function(err, dbRes) {
+		db.query("SELECT * FROM users WHERE facebookid = $1", [profile.id], function(err, dbRes) {
 			if (!err) {
+				console.log('User fetched from db!');
 				var user = dbRes.rows[0];
-				return done(err, user);
+
+				if (user) {
+					console.log('User found and should be logged in!');
+					return done(err, user);
+				} else {
+					console.log('Registering user!');
+					db.query("INSERT INTO users (facebookid) VALUES ($1)", [profile.id], function(err, dbRes) {
+						if (!err) {
+							console.log('User registered!');
+							db.query("SELECT * FROM users WHERE facebookid = $1", [profile.id], function(err, dbRes) {
+								console.log('User logged in after registration');
+								var user = dbRes.rows[0];
+								return done(err, user);
+							});
+						}
+					});
+				}
+				// var user = dbRes.rows[0];
+				// console.log(user);
+				// return done(err, user);
 			}
 		});
 	}
@@ -98,12 +118,6 @@ app.post('/', passport.authenticate('local', {failureRedirect: '/new'}), functio
 	res.redirect('/rooms');
 });
 
-app.delete('/', function(req, res) {
-	req.logout();
-	res.redirect('/');
-});
-
-
 // Facebook Auth Routes
 
 app.get('/auth/facebook',
@@ -116,7 +130,7 @@ app.get('/auth/facebook/callback',
     res.redirect('/');
   });
 
-app.get('/logout', function(req, res) {
+app.delete('/sessions', function(req, res) {
 	req.logout();
 	res.redirect('/');
 });
