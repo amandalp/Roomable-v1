@@ -10,7 +10,9 @@
 		<input type="text" name="price" value="<%= room.price %>">
 		<input type="text" name="open" value="<%= room.open.toDateString() %>">
 		<textarea name="description"><%= room.description %></textarea>
-		<input type="submit">
+		<% if (user.admin === true) { %>
+			<input type="submit">
+		<% } %>
 	</form>
 </body>
 </html>
