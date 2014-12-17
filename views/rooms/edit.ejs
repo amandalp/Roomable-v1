@@ -8,8 +8,8 @@
 		<input type="text" name="title" value="<%= room.title %>">
 		<input type="text" name="neighborhood" value="<%= room.neighborhood %>">
 		<input type="text" name="price" value="<%= room.price %>">
-		<input type="text" name="open" value="<%= room.open %>">
-		<textarea name"description"><%= room.description %></textarea>
+		<input type="text" name="open" value="<%= room.open.toDateString() %>">
+		<textarea name="description"><%= room.description %></textarea>
 		<input type="submit">
 	</form>
 </body>

@@ -1,14 +1,18 @@
-var express 			= require('express'),
-		ejs 			= require('ejs'),
-		app				= express(),
-		path			= require('path'),
-		bodyParser 		= require('body-parser'),
-		cookieParser  	= require('cookie-parser'),
-		session       	= require('express-session'),
-		LocalStrategy 	= require('passport-local').Strategy,
-		passport      	= require('passport'),
-		db				= require('./db.js'),
-		methodOverride 	= require('method-override');
+var 	express 			= require('express'),
+		ejs 				= require('ejs'),
+		app					= express(),
+		path				= require('path'),
+		bodyParser 			= require('body-parser'),
+		cookieParser  		= require('cookie-parser'),
+		session       		= require('express-session'),
+		LocalStrategy 		= require('passport-local').Strategy,
+		passport      		= require('passport'),
+		db					= require('./db.js'),
+		methodOverride 		= require('method-override'),
+		logger 				= require('morgan'),
+		util 				= require('util'),
+		FacebookStrategy	= require('passport-facebook').Strategy;
+//		fb 					= require('./fb.js');
 
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
@@ -21,6 +25,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static(__dirname + '/public'));
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -57,7 +62,28 @@ var localStrategy = new LocalStrategy(
 
 passport.use(localStrategy);
 
-// Routy Routes :) ^^ ^3^ :0 :p
+// OAuth Passport Facebook
+// finds out if you have a user and if you do, you log the user in, but if you don't you create that user, and then log them in.
+
+passport.use(new FacebookStrategy({
+	clientID: "817442341630508",
+	clientSecret: "b00d94713bc818694e97e9e83571b134",
+	callbackURL: "http://localhost:3000/auth/facebook/callback",
+	profileFields: ['id', 'displayName', 'photos'],
+	enableProof: false
+},
+	function(accessToken, refreshToken, profile, done) {
+		db.query("SELECT * FROM users WHERE facebookID = $1", [profile.id], function(err, dbRes) {
+			if (!err) {
+				var user = dbRes.rows[0];
+				return done(err, user);
+			}
+		});
+	}
+));
+
+
+// Routy Routes: User Login Routes
 
 app.get('/', function(req, res) {
 	res.render('index', { user: req.user });
@@ -71,6 +97,29 @@ app.delete('/', function(req, res) {
 	req.logout();
 	res.redirect('/');
 });
+
+app.get('/garbage', function(req, res){	
+	res.end('garbage');
+});
+
+// Facebook Routes
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook', { display: 'touch' }));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/garbage' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+app.get('/logout', function(req, res) {
+	req.logout();
+	res.redirect('/');
+});
+
+// Room Routes
 
 app.get('/rooms/new', function(req, res) {
 	res.render('rooms/new');
@@ -115,12 +164,13 @@ app.get('/rooms/:id/edit', function(req, res) {
 });
 
 app.patch('/rooms/:id', function(req, res) {
-	db.query("UPDATE apts SET title = $1, neighborhood = $2, price = $3, open = $4, description = $5, WHERE id = $7", [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.params.id], function(err, dbRes) {
+	db.query("UPDATE apts SET title = $1, neighborhood = $2, price = $3, open = $4, description = $5 WHERE id = $6", [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.params.id], function(err, dbRes) {
 		if(!err) {
 			res.redirect('/rooms/' + req.params.id);
 		} else {
+			// console.log('UPDATE apts SET title = ' + req.body.title + ', neighborhood = ' + req.body.neighborhood + ', price = '  ', open = $4, description = $5 WHERE id = $7')
 			console.log('//////////////////////');
-			console.log(req.params.id);
+			console.log(err);
 			res.send('ERROR!');
 		}
 	});

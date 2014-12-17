@@ -1,0 +1,20 @@
+.navbar {
+	margin-bottom: 0px;
+}
+
+.carousel-inner>.item>a>img {
+	min-width: 1450px;
+}
+
+h3 {
+	text-align: center;
+}
+
+.wrapper {
+    text-align: center;
+}
+
+.btn {
+    position: absolute:
+    top: 50%;
+}
