@@ -35,7 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // SERVER IS RUNNING
-app.listen(3000, function() {
+app.listen(process.env.PORT || 8000, function() {
 	console.log('Server is running!');
 });
 
