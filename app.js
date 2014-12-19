@@ -1,3 +1,6 @@
+// ===================================================================
+// CONFIGURATION
+// ===================================================================
 var 	express 			= require('express'),
 		ejs 				= require('ejs'),
 		app					= express(),
@@ -12,22 +15,33 @@ var 	express 			= require('express'),
 		logger 				= require('morgan'),
 		util 				= require('util'),
 		FacebookStrategy	= require('passport-facebook').Strategy;
-//		fb 					= require('./fb.js');
 
+// ===================================================================
+// MODULE SET-UP
+// ===================================================================
 
 app.set('view engine', 'ejs');
+
+app.use(express.static(__dirname + '/public'));
 app.use(methodOverride('_method'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended':true}));
 app.use(session({
-  secret: 'keyboard cat',
+  secret: 'kimchi ramen',
   resave: false,
   saveUninitialized: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(__dirname + '/public'));
 
+// SERVER IS RUNNING
+app.listen(3000, function() {
+	console.log('Server is running!');
+});
+
+// ===================================================================
+// AUTHENTICATION
+// ===================================================================
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -41,12 +55,7 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
-app.listen(3000, function() {
-	console.log('Server is running!');
-});
-
-
-// Local login, but may not need this anymore!
+// DB LOCAL AUTHENTICATION -- not sure I need this anymore?
 var localStrategy = new LocalStrategy(
   function(username, password, done) {
     db.query('SELECT * FROM users WHERE username = $1', [username], function(err, dbRes) {
@@ -54,7 +63,6 @@ var localStrategy = new LocalStrategy(
     	console.log(username)
 
     	console.log(user);
-
 
       if (err) { return done(err); }
       if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
@@ -66,10 +74,7 @@ var localStrategy = new LocalStrategy(
 
 passport.use(localStrategy);
 
-
-// OAuth Passport Facebook
-// finds out if you have a user and if you do, you log the user in, but if you don't you create that user, and then log them in.
-
+// FACEBOOK AUTHENTICATION -- finds out: if you have a user; and if you do, you log the user in; but if you don't, you create that user, and then log them in.
 passport.use(new FacebookStrategy({
 	clientID: "817442341630508",
 	clientSecret: "b00d94713bc818694e97e9e83571b134",
@@ -77,107 +82,83 @@ passport.use(new FacebookStrategy({
 	profileFields: ['id', 'displayName', 'photos'],
 	enableProof: false
 },
+//puts it in the table and returns your websites idea of a user
 	function(accessToken, refreshToken, profile, done) {
+		console.log('you have logged in');
 		db.query("SELECT * FROM users WHERE facebookid = $1", [profile.id], function(err, dbRes) {
 			if (!err) {
-				console.log('User fetched from db!');
-				var user = dbRes.rows[0];
-
-				if (user) {
-					console.log('User found and should be logged in!');
-					console.log(user);
-					return done(err, user);
-				} else {
-					console.log('Registering user!');
-					var photo = profile.photos[0].value;
-					db.query("INSERT INTO users (facebookid, photo) VALUES ($1, $2)", [profile.id, photo], function(err, dbRes) {
-						if (!err) {
-							console.log('User registered!');
+				var isReturningUser = dbRes.rows.length === 1
+				console.log('is returning user:' + isReturningUser);
+				if (!isReturningUser) {
+					db.query("INSERT INTO users (facebookid, accesstoken) VALUES ($1, $2)", [profile.id, accessToken], function(err, dbRes) {
+						if(!err) {
 							db.query("SELECT * FROM users WHERE facebookid = $1", [profile.id], function(err, dbRes) {
-								console.log('User logged in after registration');
 								var user = dbRes.rows[0];
-								return done(err, user);
-							});
-						}
+								return done(err, user)
+						  });
+					  } else {
+					  	console.log('Error happened:' + err);
+					  }
+
 					});
+				} else {
+					var user = dbRes.rows[0];
+					return done(err, user);
 				}
 			}
 		});
 	}
 ));
 
+// ===================================================================
+// ROUTES: WELCOME PAGE
+// ===================================================================
 
-// Starting Routes ------------------------------------------------------------------------
-
+// WELCOME PAGE (USER NOT LOGGED IN)
 app.get('/', function(req, res) {
-	if (req.user) {
-		res.redirect('/users/' + req.user.id);
-	} else {
-		res.render('index', { user: req.user });
-	}
+	res.render('index', { user: req.user });
 });
 
+// LOG IN VIA FACEBOOK
 app.post('/', passport.authenticate('local', {failureRedirect: '/new'}), function(req, res) {
 	res.redirect('/rooms');
 });
-
-// Facebook Auth Routes --------------------------------------------------------------------
 
 app.get('/auth/facebook',
   passport.authenticate('facebook', { display: 'touch' }));
 
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/error' }),
+  passport.authenticate('facebook', { failureRedirect: '/garbage' }),
   function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/users/show'); 
+    res.redirect('/');
   });
 
+// LOG OUT
 app.delete('/sessions', function(req, res) {
 	req.logout();
 	res.redirect('/');
 });
 
-// User Profile / Main Page Routes -----------------------------------------------------------
+// ===================================================================
+// ROUTES: USER PAGES
+// ===================================================================
 
+// USERS VIEWS PROFILE PAGE
 app.get('/users/:id', function(req, res) {
-	db.query("SELECT * FROM users WHERE id = $1", [req.user.id], function(err, dbRes) {
-		if (!err) {
-			res.render('users/show', { user: req.user });		
-		}
-	});
+	res.render('users/show', { user: req.user });
 });
 
-//app.post()
-
-app.get('/users/:id/edit', function(req, res) {
-	db.query("SELECT * FROM users WHERE id = $1", [req.users.id], function(err, dbRes) {
-		if(!err) {
-			res.render('users/:id/edit', { user: dbRes.rows[0] });
-		}
-	});
-});
-
-app.patch('/users/:id', function(req, res) {
-	db.query("UPDATE users SET facebookid = $1, photos = $2, name = $3, age = $4 WHERE id = $5", [req.body.facebookid, req.body.photos, req.body.name, req.body.age, req.users.id], function(err, dbRes) {
-		if(!err) {
-			res.redirect('users/show' + req.users.id);
-		} else {
-			// console.log('UPDATE apts SET title = ' + req.body.title + ', neighborhood = ' + req.body.neighborhood + ', price = '  ', open = $4, description = $5 WHERE id = $7')
-			console.log('//////////////////////');
-			console.log(err);
-			res.send('ERROR!');
-		}
-	});
-});
+// USER EDITS PROFILE
 
 
-// Room Routes -------------------------------------------------------------------------------
+// PROFILE CHANGES ARE SUBMITTED
 
-app.get('/rooms/new', function(req, res) {
-	res.render('rooms/new');
-});
 
+// ===================================================================
+// ROUTES: ROOM PAGES
+// ===================================================================
+
+// USER SEES ALL ROOM POSTINGS
 app.get('/rooms', function(req, res) {
 	db.query("SELECT * FROM apts;", function(err, dbRes) {
 		if(!err) {
@@ -186,19 +167,34 @@ app.get('/rooms', function(req, res) {
 	});
 });
 
+// USER CREATES NEW ROOM POSTING
+app.get('/rooms/new', function(req, res) {
+	console.log('im trying to get a new room!!!! pwweeeeze');
+	res.render('rooms/new');
+});
+
+// USERS SEES CLICKED-ON POSTING
 app.get('/rooms/:id', function(req, res) {
+	var loggedIn = req.user !== undefined;
+	if (!loggedIn) {
+		res.redirect('/');
+		return;
+	} 
 	db.query("SELECT * FROM apts WHERE id = $1", [req.params.id], function(err, dbRes) {
 		if(!err) {
-			res.render('rooms/show', { room: dbRes.rows[0] });
+			var browsingUserId = req.user.id;
+			var owningUserId = dbRes.rows[0].user_id;
+			var isOwner = browsingUserId === owningUserId;
+			res.render('rooms/show', { room: dbRes.rows[0], user: req.user, isOwner: isOwner });
 		}
 	});
 });
 
+// NEW POSTING IS SUBMITTED
 app.post('/rooms', function(req, res) {
-	// If the user is logged in
 	if (req.user) {
-		var params = [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.user.id];
-		db.query("INSERT INTO apts (title, neighborhood, price, open, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)", params, function(err, dbRes) {
+		var roomData = [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.user.id];
+		db.query("INSERT INTO apts (title, neighborhood, price, open, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)", roomData, function(err, dbRes) {
 			if(!err) {
 				res.redirect('/rooms');
 			}
@@ -208,25 +204,25 @@ app.post('/rooms', function(req, res) {
 	}
 });
 
+// AUTHORIZED USER EDITS A ROOM POSTING
 app.get('/rooms/:id/edit', function(req, res) {
 	db.query("SELECT * FROM apts WHERE id = $1", [req.params.id], function(err, dbRes) {
 		if(!err) {
-			if (user.admin === true) {
+			var browsingUserId = req.user.id;
+			var owningUserId = dbRes.rows[0].user_id;
+			if(browsingUserId === owningUserId) {
 				res.render('rooms/edit', { room: dbRes.rows[0] });	
-			} else {
-				res.redirect('/');
-			}
-
+			} else res.redirect('/notauthorized');
 		}
 	});
 });
 
+// EDITED ROOM POSTING IS SUBMITTED BY AUTH USER
 app.patch('/rooms/:id', function(req, res) {
 	db.query("UPDATE apts SET title = $1, neighborhood = $2, price = $3, open = $4, description = $5 WHERE id = $6", [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.params.id], function(err, dbRes) {
 		if(!err) {
 			res.redirect('/rooms/' + req.params.id);
 		} else {
-			// console.log('UPDATE apts SET title = ' + req.body.title + ', neighborhood = ' + req.body.neighborhood + ', price = '  ', open = $4, description = $5 WHERE id = $7')
 			console.log('//////////////////////');
 			console.log(err);
 			res.send('ERROR!');
@@ -234,6 +230,7 @@ app.patch('/rooms/:id', function(req, res) {
 	});
 });
 
+// AUTH USER DELETES ROOM POSTING
 app.delete('/rooms/:id', function(req, res) {
 	db.query("DELETE FROM apts WHERE id = $1", [req.params.id], function(err, dbRes) {
 		if(!err) {

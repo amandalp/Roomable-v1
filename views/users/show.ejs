@@ -1,0 +1,78 @@
+<html>
+<head>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	<link href="css/style.css" rel="stylesheet">
+	<title>create a profile!</title>
+</head>
+<body>
+	<nav class="navbar navbar-default" role="navigation">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="/">ROOMABLE</a>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav navbar-right">
+	        	<form action="/sessions?_method=DELETE" method="POST">
+	        		<input type="submit" value="Log Out">
+	        	</form>
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	
+	
+
+
+	<h1>This is your profile!</h1>
+	<a href="/users/<%= user.id %>/edit">Edit</a>
+	<br>
+	<form action="/profile" method="POST">
+		<input type="text" name="name" placeholder="Name">
+		<br>
+		<input type="number" name="age" placeholder="Age">
+		<br>
+		<textarea name="summary" placeholder="About Me"></textarea>
+		<br>
+		<input type="checkbox" name="tags" value="neat-freak">neat freak
+		<br>
+		<input type="checkbox" name="tags" value="not-home">never home
+		<br>
+		<input type="checkbox" name="tags" value="doesn't-party">doesn't bring the party home
+		<br>
+		<input type="checkbox" name="tags" value="foodie">foodie
+		<br>
+		<input type="checkbox" name="tags" value="health-nut">health nut
+		<br>
+		<input type="checkbox" name="tags" value="tv-watcher">tv watcher
+		<br>
+		<input type="checkbox" name="tags" value="early-bird">early bird
+		<br>
+		<input type="checkbox" name="tags" value="night-owl">night owl
+		<br>
+		<input type="checkbox" name="tags" value="partier">likes to party
+		<br>
+		<input type="checkbox" name="tags" value="book-worm">book worm
+		<br>
+		<input type="checkbox" name="tags" value="chill">chill
+		<br>
+		<input type="checkbox" name="tags" value="light-sleeper">light sleeper
+		<br>
+		<input type="checkbox" name="tags" value="introvert">introvert
+		<br>
+		<input type="checkbox" name="tags" value="extrovert">extrovert
+		<br>
+		<input type="submit">
+	</form>
+</body>
+</html>

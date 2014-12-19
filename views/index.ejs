@@ -47,6 +47,8 @@
 	      <ul class="nav navbar-nav navbar-right">
 
 	        <% if (user) { %>
+	        	<li><a href="/rooms">Rooms</a></li>
+	        	<li><a href="/rooms/new">Post a room</a></li>
 	        	<form action="/sessions?_method=DELETE" method="POST">
 	        		<input type="submit" value="Log Out">
 	        	</form>
@@ -93,7 +95,7 @@
 	    <div class="item">
 	      <a href="http://imgur.com/5DZTcd3"><img src="http://i.imgur.com/5DZTcd3.jpg" title="source: imgur.com" /></a>
 	      <div class="carousel-caption">
-	          <h2>GET STARTED</h2>
+	          <h2><a href="/auth/facebook">GET STARTED</a></h2>
 	      </div>  
 	    </div>
 	  </div>

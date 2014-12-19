@@ -1,21 +1,57 @@
 <html>
 <head>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	<link href="css/style.css" rel="stylesheet">
 	<title><%= room.title %></title>
 </head>
 <body>
+	<nav class="navbar navbar-default" role="navigation">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="/">ROOMABLE</a>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      
+	      <ul class="nav navbar-nav navbar-right">
+
+	        <% if (user) { %>
+	        	<li><a href="/rooms">Rooms</a></li>
+	        	<li><a href="/rooms/new">Post a room</a></li>
+	        	<form action="/sessions?_method=DELETE" method="POST">
+	        		<input type="submit" value="Log Out">
+	        	</form>
+	        <% } else { %>
+	        	<li><a href="/auth/facebook">Log In with Facebook</a></li>
+	        <% } %>
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	
 	<h1><%= room.title %></h1>
 	<p>Neighborhood: <%= room.neighborhood %></p>	
 	<p>Price: <%= room.price %></p>
 	<p>Date Available: <%= room.open %></p>
 	<p>Description: <%= room.description %></p>
-	<p>Contact: </p>
-	<a href="/rooms/<%= room.id %>/edit">Edit</a>
-	<br>
-	<% if (user.admin === true) { %>
+	<% if (isOwner) { %>
+		<a href="/rooms/<%= room.id %>/edit">Edit</a>
+		<br>
 		<form action="/rooms/<%= room.id %>?_method=DELETE" method="POST">
 			<input type="submit" value="DELETE">
-		</form>
+		</form>	
 	<% } %>
+	
 	<p><a href="/rooms/">Back</a></p>
 </body>
 </html>
