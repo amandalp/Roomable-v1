@@ -1,19 +1,19 @@
 // ===================================================================
 // CONFIGURATION
 // ===================================================================
-var 	express 			= require('express'),
-		ejs 				= require('ejs'),
-		app					= express(),
-		path				= require('path'),
-		bodyParser 			= require('body-parser'),
+var express 					= require('express'),
+		ejs 							= require('ejs'),
+		app								= express(),
+		path							= require('path'),
+		bodyParser 				= require('body-parser'),
 		cookieParser  		= require('cookie-parser'),
 		session       		= require('express-session'),
 		LocalStrategy 		= require('passport-local').Strategy,
 		passport      		= require('passport'),
-		db					= require('./db.js'),
+		db								= require('./db.js'),
 		methodOverride 		= require('method-override'),
-		logger 				= require('morgan'),
-		util 				= require('util'),
+		logger 						= require('morgan'),
+		util 							= require('util'),
 		FacebookStrategy	= require('passport-facebook').Strategy;
 
 // ===================================================================
@@ -82,10 +82,11 @@ passport.use(new FacebookStrategy({
 	profileFields: ['id', 'displayName', 'photos'],
 	enableProof: false
 },
-//puts it in the table and returns your websites idea of a user
+// My note: puts it in the table and returns your websites idea of a user
 	function(accessToken, refreshToken, profile, done) {
 		console.log('you have logged in');
 		db.query("SELECT * FROM users WHERE facebookid = $1", [profile.id], function(err, dbRes) {
+			// Checks if user is new or returning user. If it's a new user, puts facebook id into postgres table
 			if (!err) {
 				var isReturningUser = dbRes.rows.length === 1
 				console.log('is returning user:' + isReturningUser);
@@ -99,7 +100,6 @@ passport.use(new FacebookStrategy({
 					  } else {
 					  	console.log('Error happened:' + err);
 					  }
-
 					});
 				} else {
 					var user = dbRes.rows[0];
