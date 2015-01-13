@@ -2,26 +2,25 @@
 // CONFIGURATION
 // ===================================================================
 var express 					= require('express'),
-		ejs 							= require('ejs'),
-		app								= express(),
-		path							= require('path'),
+		ejs 					= require('ejs'),
+		app						= express(),
+		path					= require('path'),
 		bodyParser 				= require('body-parser'),
-		cookieParser  		= require('cookie-parser'),
-		session       		= require('express-session'),
-		LocalStrategy 		= require('passport-local').Strategy,
-		passport      		= require('passport'),
-		db								= require('./db.js'),
-		methodOverride 		= require('method-override'),
-		logger 						= require('morgan'),
-		util 							= require('util'),
-		FacebookStrategy	= require('passport-facebook').Strategy;
+		cookieParser 	 		= require('cookie-parser'),
+		session       			= require('express-session'),
+		LocalStrategy 			= require('passport-local').Strategy,
+		passport      			= require('passport'),
+		db						= require('./db.js'),
+		methodOverride 			= require('method-override'),
+		logger 					= require('morgan'),
+		util 					= require('util'),
+		FacebookStrategy		= require('passport-facebook').Strategy;
 
 // ===================================================================
 // MODULE SET-UP
 // ===================================================================
 
 app.set('view engine', 'ejs');
-
 app.use(express.static(__dirname + '/public'));
 app.use(methodOverride('_method'));
 app.use(bodyParser.json());
@@ -35,7 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // SERVER IS RUNNING
-app.listen(process.env.PORT || 8000, function() {
+app.listen(3000, function() {
 	console.log('Server is running!');
 });
 
@@ -125,12 +124,12 @@ app.post('/', passport.authenticate('local', {failureRedirect: '/new'}), functio
 });
 
 app.get('/auth/facebook',
-  passport.authenticate('facebook', { display: 'touch' }));
+  passport.authenticate('facebook', { display: 'touch', scope: 'user_friends' }));
 
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/garbage' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/rooms');
   });
 
 // LOG OUT
@@ -169,7 +168,6 @@ app.get('/rooms', function(req, res) {
 
 // USER CREATES NEW ROOM POSTING
 app.get('/rooms/new', function(req, res) {
-	console.log('im trying to get a new room!!!! pwweeeeze');
 	res.render('rooms/new');
 });
 
@@ -193,8 +191,8 @@ app.get('/rooms/:id', function(req, res) {
 // NEW POSTING IS SUBMITTED
 app.post('/rooms', function(req, res) {
 	if (req.user) {
-		var roomData = [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.user.id];
-		db.query("INSERT INTO apts (title, neighborhood, price, open, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)", roomData, function(err, dbRes) {
+		var roomData = [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.body.displayphoto, req.user.id];
+		db.query("INSERT INTO apts (title, neighborhood, price, open, description, displayphoto, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7)", roomData, function(err, dbRes) {
 			if(!err) {
 				res.redirect('/rooms');
 			}
@@ -203,6 +201,11 @@ app.post('/rooms', function(req, res) {
 		res.redirect('/');
 	}
 });
+
+//app.get('/rooms/:id/image', function(req, res) {
+//	db.query("SELECT displayphoto")
+	// that image, use first url to get it out fo the database. get file contents out of db. and send those contents down, so not rendering a page, but dont send them down. right now they're encoded. before you send it down respons.send, need to set the headers, response.set header or something, and set the mind type to the typet aht the image is. so if it's a png image, it's image/png. so send the correct mind type down, so the browswer knows waht the contents are!
+//})
 
 // AUTHORIZED USER EDITS A ROOM POSTING
 app.get('/rooms/:id/edit', function(req, res) {
@@ -219,7 +222,7 @@ app.get('/rooms/:id/edit', function(req, res) {
 
 // EDITED ROOM POSTING IS SUBMITTED BY AUTH USER
 app.patch('/rooms/:id', function(req, res) {
-	db.query("UPDATE apts SET title = $1, neighborhood = $2, price = $3, open = $4, description = $5 WHERE id = $6", [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.params.id], function(err, dbRes) {
+	db.query("UPDATE apts SET title = $1, neighborhood = $2, price = $3, open = $4, description = $5, displayphoto = $6 WHERE id = $7", [req.body.title, req.body.neighborhood, req.body.price, req.body.open, req.body.description, req.params.id], function(err, dbRes) {
 		if(!err) {
 			res.redirect('/rooms/' + req.params.id);
 		} else {

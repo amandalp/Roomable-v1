@@ -49,13 +49,15 @@
 	        <% if (user) { %>
 	        	<li><a href="/rooms">Rooms</a></li>
 	        	<li><a href="/rooms/new">Post a room</a></li>
-	        	<form action="/sessions?_method=DELETE" method="POST">
-	        		<input type="submit" value="Log Out">
-	        	</form>
 	        <% } else { %>
 	        	<li><a href="/auth/facebook">Log In with Facebook</a></li>
 	        <% } %>
 	      </ul>
+	      <% if (user) { %>
+	      		<form action="/sessions?_method=DELETE" method="POST" class="pull-right">
+	        		<input type="submit" value="Log Out">
+	        	</form>
+	      <% } %>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>

@@ -28,21 +28,23 @@
 	        
 	        	<li><a href="/rooms">Rooms</a></li>
 	        	<li><a href="/rooms/new">Post a room</a></li>
-	        	<form action="/sessions?_method=DELETE" method="POST">
-	        		<input type="submit" value="Log Out">
-	        	</form>
+	        	
 	        
 	      </ul>
+	      <form action="/sessions?_method=DELETE" method="POST" class="pull-right">
+	        		<input type="submit" value="Log Out">
+	        	</form>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
 	<h1><%= room.title %></h1>
 	<form action="/rooms/<%= room.id %>?_method=PATCH" method="POST">
-		<input type="text" name="title" value="<%= room.title %>">
-		<input type="text" name="neighborhood" value="<%= room.neighborhood %>">
-		<input type="text" name="price" value="<%= room.price %>">
-		<input type="text" name="open" value="<%= room.open.toDateString() %>">
-		<textarea name="description"><%= room.description %></textarea>
+		<input type="text" name="title" value="<%= room.title %>"><br>
+		<input type="text" name="neighborhood" value="<%= room.neighborhood %>"><br>
+		<input type="text" name="price" value="<%= room.price %>"><br>
+		<input type="text" name="open" value="<%= room.open.toDateString() %>"><br>
+		<textarea name="description"><%= room.description %></textarea><br>
+		<input type="src" name="displayphoto" placeholder="Upload a Photo"><br>
 		
 			<input type="submit">
 		

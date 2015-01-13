@@ -28,21 +28,23 @@
 	        <% if (user) { %>
 	        	<li><a href="/rooms">Rooms</a></li>
 	        	<li><a href="/rooms/new">Post a room</a></li>
-	        	<form action="/sessions?_method=DELETE" method="POST">
-	        		<input type="submit" value="Log Out">
-	        	</form>
+	        
 	        <% } else { %>
 	        	<li><a href="/auth/facebook">Log In with Facebook</a></li>
 	        <% } %>
 	      </ul>
+	      <form action="/sessions?_method=DELETE" method="POST" class="pull-right">
+	        		<input type="submit" value="Log Out">
+	        	</form>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
 	
 	<h1><%= room.title %></h1>
-	<p>Neighborhood: <%= room.neighborhood %></p>	
-	<p>Price: <%= room.price %></p>
-	<p>Date Available: <%= room.open %></p>
+	<p>Photo: <%= room.displayphoto %></p><br>
+	<p>Neighborhood: <%= room.neighborhood %></p><br>	
+	<p>Price: <%= room.price %></p><br>
+	<p>Date Available: <%= room.open %></p><br>
 	<p>Description: <%= room.description %></p>
 	<% if (isOwner) { %>
 		<a href="/rooms/<%= room.id %>/edit">Edit</a>
